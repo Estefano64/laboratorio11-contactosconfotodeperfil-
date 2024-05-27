@@ -32,6 +32,7 @@
                     </div>
                 </div>
             </div>
+            
             <div class="mt-8 flex items-center justify-center gap-x-6">
                 <x-primary-button>Guardar</x-primary-button>
                 <x-secondary-button onclick="location.href='{{ route('contacts.index') }}'">Cancelar</x-secondary-button>
