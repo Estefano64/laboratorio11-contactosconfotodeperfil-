@@ -5,7 +5,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-
+use Intervention\Image\ImageManagerStatic as Image;
 
 class ContactController extends Controller
 {
@@ -80,10 +80,25 @@ class ContactController extends Controller
         ]);
 
         if ($request->hasFile('profile_photo')) {
-            $filePath = $request->file('profile_photo')->store('profile_photos', 'public');
+            $image = $request->file('profile_photo');
+            $fileName = time() . '.' . $image->getClientOriginalExtension();
+            $filePath = 'profile_photos/' . $fileName;
+        
+            // Redimensionar la imagen
+            list($width, $height) = getimagesize($image->getRealPath());
+            $newWidth = 300; // Ancho deseado
+            $newHeight = 300; // Alto deseado
+        
+            $thumb = \imagecreatetruecolor($newWidth, $newHeight);
+            $source = \imagecreatefromjpeg($image->getRealPath());
+            \imagecopyresized($thumb, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+        
+            // Guardar la imagen redimensionada
+            $storagePath = storage_path('app/public/' . $filePath);
+            \imagejpeg($thumb, $storagePath);
+        
             $validated['profile_photo_path'] = $filePath;
         }
-
         $contact->update($validated);
 
         return redirect()->route('contacts.index');
